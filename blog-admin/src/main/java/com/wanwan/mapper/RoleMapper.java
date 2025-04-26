@@ -1,0 +1,22 @@
+package com.wanwan.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wanwan.entity.Role;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+/**
+ * <p>
+ *  Mapper 接口
+ * </p>
+ *
+ * @author wanwan
+ * @since 2024-02-15
+ */
+@Mapper
+public interface RoleMapper extends BaseMapper<Role> {
+
+    @Select("select id from role where flag = #{flag}")
+    Integer selectByFlag(@Param("flag") String role);
+}

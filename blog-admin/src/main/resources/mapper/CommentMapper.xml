@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wanwan.mapper.CommentMapper">
+
+    <!--涉及的表有用户，文章，评论，点赞，没问题勿动-->
+    <resultMap id="BaseResultMap" type="com.wanwan.entity.Comment">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+            <result property="replyUserId" column="reply_user_id" jdbcType="INTEGER"/>
+            <result property="replyCommentId" column="reply_comment_id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="commentContent" column="comment_content" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="likeNum" column="like_num" jdbcType="INTEGER"/>
+            <result property="articleId" column="article_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="commentDTOMap" type="com.wanwan.dto.CommentDTO">
+
+        <!-- mybatis下面用了id之后, 他就不会帮我们自动映射了, 需要手动添加这个, 否则返回的数据里面id为null -->
+        <result property="id" column="id"/>
+
+        <association property="replyTotalCount" javaType="java.lang.Long"
+                     select="selectReplyTotalCount" column="id"/>
+        <association property="isLike" javaType="java.lang.Boolean"
+                     select="selectUserCommentLike" column="{commentId=id,userId=currentUserId}"/>
+
+        <collection property="children" ofType="com.wanwan.dto.CommentDTO"
+                    select="queryChildrenByPage" column="{commentId=id,startIndex=startIndex,count=count,currentUserId=currentUserId}"/>
+
+    </resultMap>
+    <resultMap id="SecondCommentDTOMap" type="com.wanwan.dto.CommentDTO">
+        <association property="isLike" javaType="java.lang.Boolean"
+                     select="selectUserCommentLike" column="{commentId=id,userId=currentUserId}"/>
+    </resultMap>
+    <select id="selectCommentCount" resultType="int">
+        <include refid="selectCommentCountSql"/>
+    </select>
+    <sql id="selectCommentCountSql">
+        select count(*) from comment c where c.article_id = #{id}
+    </sql>
+    <select id="selectReplyTotalCount" resultType="int">
+        <include refid="selectReplyTotalCountSql"/>
+    </select>
+    <sql id="selectReplyTotalCountSql">
+        select count(*) from comment c where c.parent_id = #{id}
+    </sql>
+    <!--查询一级评论-->
+    <select id="queryPage" resultMap="commentDTOMap">
+        SELECT  c.id, parent_id, reply_user_id, user_id, comment_content, c.create_time, like_num ,u.avatar_url,
+                c.reply_comment_id,
+                u.nickname , u2.nickname as reply_user_nickname,0 as startIndex, 3 as `count`,#{currentUserId} as currentUserId
+        from comment c
+                 Left join user u on c.user_id = u.id
+                 Left join user u2 on c.reply_user_id = u2.id
+        where c.parent_id is null and
+              c.article_id = #{articleId}
+        order
+            by c.create_time DESC
+    </select>
+    <!--查询二级评论-->
+    <select id="queryChildrenByPage" resultMap="SecondCommentDTOMap">
+        SELECT  c.id, parent_id, reply_user_id, user_id, comment_content, c.create_time, like_num,
+                c.reply_comment_id,
+                u.nickname , u2.nickname as reply_user_nickname,u.avatar_url, #{currentUserId} as currentUserId
+        from comment c
+                 Left join user u on c.user_id = u.id
+                 Left join user u2 on c.reply_user_id = u2.id
+        where c.parent_id = #{commentId}
+        order
+            by c.create_time
+            desc limit ${startIndex},${count}
+
+    </select>
+
+    <select id="getSingleComment" resultType="com.wanwan.dto.CommentDTO">
+        SELECT  c.id, parent_id, reply_user_id, user_id, comment_content, c.create_time, like_num ,u.avatar_url,
+                c.reply_comment_id,
+                u.nickname , u2.nickname as reply_user_nickname
+        from comment c
+                 Left join user u on c.user_id = u.id
+                 Left join user u2 on c.reply_user_id = u2.id
+        where c.id = #{id}
+
+
+    </select>
+
+    <select id="selectUserCommentLike" resultType="java.lang.Boolean">
+        select count(*) from user_comment_like where comment_id = ${commentId} and user_id = ${userId}
+    </select>
+
+
+
+
+    <select id="isLike" resultType="java.lang.Boolean">
+        select count(*) from comment_like where comment_id = #{commentId} and user_id = #{userId}
+    </select>
+    <select id="getCountByArticleId" resultType="java.lang.Long">
+        select count(*) from comment where article_id = #{articleId}
+    </select>
+    <insert id="like">
+        insert into user_comment_like(user_id,comment_id) values(#{userId},#{commentId})
+    </insert>
+    <delete id="disLike">
+        delete from user_comment_like where user_id=#{userId} and comment_id=#{commentId}
+    </delete>
+    <update id="commentLike">
+        update comment set like_num=like_num+1 where id=#{commentId}
+    </update>
+    <update id="commentDisLike">
+        update comment set like_num=like_num-1 where id=#{commentId}
+    </update>
+
+
+    <sql id="Base_Column_List">
+        id,parent_id,reply_user_id,
+        reply_comment_id,user_id,comment_content,
+        create_time,like_num,article_id
+    </sql>
+</mapper>

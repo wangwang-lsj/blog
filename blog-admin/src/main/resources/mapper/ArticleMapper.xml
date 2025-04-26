@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wanwan.mapper.ArticleMapper">
+
+    <!-- 在您的 SQL 映射文件中 -->
+    <!-- 使用 <include> 标签引入另一个文件中的查询语句 -->
+    <select id="selectReplyTotalCount" resultType="int">
+        <include refid="com.wanwan.mapper.CommentMapper.selectCommentCountSql"/>
+    </select>
+    <resultMap id="ArticleMap" type="com.wanwan.entity.Article">
+        <result property="id" column="id"/>
+        <association property="commentCount" javaType="java.lang.Long"
+                     select="selectReplyTotalCount" column="id"/>
+    </resultMap>
+
+    <select id="selectAllByPage" resultMap="ArticleMap">
+        SELECT
+        a.*,c.name as categoryName,u.username as userName
+        FROM article a
+        LEFT JOIN category c on a.category_id = c.id
+        LEFT JOIN user u on a.author_id = u.id
+        <where>
+            <if test="title != null and title !=''">or title like concat('%',#{title},'%')</if>
+            <if test="description != null and description !=''">or description like concat('%',#{description},'%')</if>
+            <if test="categoryName != null and categoryName !=''">and c.name like concat('%',#{categoryName},'%')</if>
+            <if test="userName != null and userName !=''">and u.username like concat('%',#{userName},'%')</if>
+        </where>
+        <if test="orderTarget != null and orderTarget !=''">
+            order by
+            ${orderTarget}
+            <if test="order == 'asc'">ASC</if>
+            <if test="order == 'desc'">DESC</if>
+        </if>
+        <if test="orderTarget == ''">
+            order by
+            a.id
+            <if test="order == 'asc'">ASC</if>
+            <if test="order == 'desc'">DESC</if>
+        </if>
+
+    </select>
+    <select id="getOneAllById" resultType="com.wanwan.entity.Article">
+        SELECT
+        a.*,c.name as categoryName,u.username as userName
+        FROM article a
+        LEFT JOIN category c on a.category_id = c.id
+        LEFT JOIN user u on a.author_id = u.id
+        where a.id = #{id}
+    </select>
+
+
+
+</mapper>

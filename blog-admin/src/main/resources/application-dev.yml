@@ -1,0 +1,48 @@
+# 应用服务 WEB 访问端口
+server:
+  ip : localhost
+  port: 9090
+
+spring:
+  #数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${server.ip}:3306/db_blog?serverTimezone=GMT%2b8&allowMultiQueries=true
+    username: root
+    password: root
+  mvc:
+    pathmatch:
+      # 整合swagger时报错解决
+      matching-strategy: ant_path_matcher
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 1000MB
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+mybatis:
+  #扫描所有xml文件
+  mapper-locations: classpath:mapper/*.xml
+#  configuration:
+#    打印日志
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+files:
+  upload:
+    path: D:/ProjectsIdea/wanwanBlog/files/
+
+#files:
+#  upload:
+#    项目的根目录的files文件夹
+#    path: files/
+#files:
+#  upload:
+#     jar包的同级目录files文件夹
+#    path: classpath:/files/
