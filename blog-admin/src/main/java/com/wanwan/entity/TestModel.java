@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author：玩玩
@@ -12,9 +14,11 @@ import lombok.Data;
  */
 @Data
 @TableName("test")
+@Getter
+@Setter
 public class TestModel {
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    @TableId(type=IdType.ASSIGN_ID)
+    private Integer id;
     private String name;
     private String age;
 

@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 public class UserDTO {
-    private Integer id;
+    private Long id;
     private String username;
     // @JsonIgnore
     private String password;

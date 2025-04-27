@@ -11,9 +11,12 @@ import lombok.Setter;
 import java.io.Serializable;
 
 /**
- * @author 玩玩
- * @description
- * @since 2025/4/24  23:32
+ * <p>
+ *
+ * </p>
+ *
+ * @author wanwan
+ * @since 2024-02-15
  */
 @Getter
 @Setter
@@ -22,17 +25,13 @@ import java.io.Serializable;
 public class Role implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @ApiModelProperty("id")
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
-
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
     @ApiModelProperty("名称")
     private String name;
-
     @ApiModelProperty("描述")
     private String description;
-
     @ApiModelProperty("角色")
     private String flag;
 

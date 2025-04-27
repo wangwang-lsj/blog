@@ -13,9 +13,12 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author 玩玩
- * @description
- * @since 2025/4/24  23:31
+ * <p>
+ *
+ * </p>
+ *
+ * @author wanwan
+ * @since 2024-02-15
  */
 @Getter
 @Setter
@@ -24,31 +27,26 @@ import java.util.List;
 public class Menu implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @ApiModelProperty("id")
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
-
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
     @ApiModelProperty("名称")
     private String name;
-
     @ApiModelProperty("路径")
     private String path;
-
     @ApiModelProperty("图标")
     private String icon;
-
     @ApiModelProperty("描述")
     private String description;
     @ApiModelProperty("顺序")
-    private Long sortNum;
-
+    private Integer sortNum;
     @ApiModelProperty("父级id")
-    private Long pid;
-
+    private Integer pid;
     @ApiModelProperty("页面路径")
     private String pagePath;
-
     @TableField(exist = false)
+    @ApiModelProperty("子菜单")
     private List<Menu> children;
+
+
 }

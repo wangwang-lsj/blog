@@ -1,7 +1,10 @@
 package com.wanwan.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author：玩玩
@@ -10,7 +13,11 @@ import lombok.Data;
  */
 @TableName("role_menu")
 @Data
+@Getter
+@Setter
 public class RoleMenu {
-    private Long roleId;
-    private Long menu;
+    @ApiModelProperty("角色ID")
+    private Integer roleId;
+    @ApiModelProperty("菜单ID")
+    private Integer menuId;
 }

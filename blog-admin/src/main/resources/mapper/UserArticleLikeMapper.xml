@@ -5,7 +5,7 @@
 <mapper namespace="com.wanwan.mapper.UserArticleLikeMapper">
 
     <resultMap id="BaseResultMap" type="com.wanwan.entity.UserArticleLike">
-            <id property="userId" column="user_id" jdbcType="INTEGER"/>
+            <id property="userId" column="user_id" jdbcType="BIGINT"/>
             <id property="articleId" column="article_id" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>

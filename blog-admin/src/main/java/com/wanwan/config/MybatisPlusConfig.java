@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 //可以省略那些mapper注解
-@MapperScan("com.wanwan.springboot.mapper")
+@MapperScan("com.wanwan.mapper")
 public class MybatisPlusConfig {
 
     /**

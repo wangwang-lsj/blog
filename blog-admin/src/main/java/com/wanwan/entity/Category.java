@@ -10,23 +10,23 @@ import lombok.Setter;
 import java.io.Serializable;
 
 /**
- * @author 玩玩
- * @description
- * @since 2025/4/24  23:29
+ * <p>
+ *
+ * </p>
+ *
+ * @author wanwan
+ * @since 2024-03-07
  */
 @Getter
 @Setter
 @ApiModel(value = "Category对象", description = "")
 public class Category implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty("ID")
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
-
-    @ApiModelProperty("菜单名")
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+    @ApiModelProperty("类别名")
     private String name;
-
 
 }

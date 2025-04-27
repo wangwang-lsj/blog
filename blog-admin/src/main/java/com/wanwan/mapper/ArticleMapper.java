@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 /**
  * <p>
  * 文章(博客） Mapper 接口
@@ -17,14 +19,17 @@ import org.apache.ibatis.annotations.Update;
  */
 @Mapper
 public interface ArticleMapper extends BaseMapper<Article> {
-    Page<Article> selectAllByPage(Page<Article> page, @Param("title") String title,@Param("description") String description,@Param("userName") String userName,@Param("categoryName") String categoryName, @Param("orderTarget") String orderTarget,@Param("order") String order);
+    Page<Article> selectArticlePageByCondition(Page<Article> page, @Param("title") String title, @Param("description") String description, @Param("userName") String userName, @Param("categoryName") String categoryName, @Param("orderTarget") String orderTarget, @Param("order") String order);
 
-    Article getOneAllById(@Param("id")Integer id);
+    Article selectArticleById(@Param("id")Integer id);
 
 
     @Update("update article set likes = likes + #{num} where id = #{id}")
-    Boolean updateArticleLikes(@Param("id")Integer id,@Param("num")Integer num);
+    void updateArticleLikesById(@Param("id")Integer id, @Param("num")Integer num);
 
     @Update("update article set read_count = read_count + #{num} where id = #{id}")
-    Boolean updateArticleReadCount(@Param("id")Integer id,@Param("num")Integer num);
+    void updateArticleReadCountById(@Param("id")Integer id, @Param("num")Integer num);
+
+
+    List<Article> selectArticleByHomeShow();
 }

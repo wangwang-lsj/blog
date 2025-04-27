@@ -2,28 +2,25 @@ package com.wanwan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.TypeReference;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wanwan.common.Constants;
 import com.wanwan.common.enums.ResultCodeEnum;
-import com.wanwan.entity.Menu;
-import com.wanwan.entity.User;
-import com.wanwan.dto.UserDTO;
-import com.wanwan.dto.UserPasswordDTO;
 import com.wanwan.exception.ServiceException;
 import com.wanwan.mapper.RoleMapper;
 import com.wanwan.mapper.RoleMenuMapper;
 import com.wanwan.mapper.UserMapper;
+import com.wanwan.dto.UserDTO;
+import com.wanwan.dto.UserPasswordDTO;
+import com.wanwan.entity.Menu;
+import com.wanwan.entity.User;
 import com.wanwan.service.IMenuService;
 import com.wanwan.service.IUserService;
-import com.wanwan.utils.TokenUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.wanwan.utils.JWTUtils;
+import com.wanwan.utils.MyUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -41,9 +38,12 @@ import java.util.stream.Collectors;
  * @author wanwan
  * @since 2024-01-22
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
     private static final Log LOG = Log.get();
+    @Value("${server.ip}")
+    private String serverIp;
     @Resource
     private RoleMapper roleMapper;
     @Resource
@@ -52,21 +52,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private RoleMenuMapper roleMenuMapper;
     @Resource
     private IMenuService menuService;
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
-    @Resource
-    private PasswordEncoder passwordEncoder;
     @Override
     public UserDTO login(UserDTO userDTO) {
-        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        log.info("登录业务执行");
         User one = getUserInfo(userDTO);
         if(one != null){
             // 刷新上次登陆时间
-            one.setRecentlyLanded(DateUtil.now());
+            one.setRecentlyLanded(DateUtil.date());
             updateById(one);
 
             BeanUtil.copyProperties(one,userDTO,true);
-            String token = TokenUtils.genToken(one.getId().toString(), one.getPassword());
+            Map<String,String> map = new HashMap<>();
+            map.put("userId",one.getId().toString());
+            String token = JWTUtils.genToken(map);
             userDTO.setToken(token);
             userDTO.setPassword(null);
             String role = one.getRole();
@@ -84,10 +82,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(one == null){
             one = new User();
             BeanUtil.copyProperties(userDTO, one ,true);
-            // 注意密码为空的情况，待优化
-            one.setPassword(passwordEncoder.encode(one.getPassword()));
+            one.setNickname("游客"+ MyUtil.generateRandomString());
+            one.setAvatarUrl("http://"+serverIp+":9090/api/files/b4b86bb7e08f4876a3cd400f8220b6f6.jpeg");
             save(one);
-            stringRedisTemplate.delete(Constants.USER_KEY);
         }else {
             throw new ServiceException(ResultCodeEnum.USER_EXIT_ERROR);
         }
@@ -95,11 +92,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public Map<String, Object> findByPageOrSearch(Integer pageNum, Integer pageSize, String username, String nickname, String address, String phone, String email) {
+    public Map<String, Object> pageUserByCondition(Integer pageNum, Integer pageSize, String username, String nickname, String address, String phone, String email) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        if(StrUtil.isNotBlank(username)||StrUtil.isNotBlank(nickname)||StrUtil.isNotBlank(address)||StrUtil.isNotBlank(phone)||StrUtil.isNotBlank(email)){
-            stringRedisTemplate.delete(Constants.USER_KEY);
-        }
         if(!"".equals(username)){
             queryWrapper.like("username",username);
         }
@@ -116,15 +110,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             queryWrapper.like("email",email);
         }
         queryWrapper.orderByDesc("id");
-        List<User> list;
-        String jsonStr = stringRedisTemplate.opsForValue().get(Constants.USER_KEY);
-        if(StrUtil.isBlank(jsonStr)){
-            list = list(queryWrapper);
-            stringRedisTemplate.opsForValue().set(Constants.USER_KEY, JSONUtil.toJsonStr(list));
-        }else {
-            list = JSONUtil.toBean(jsonStr, new TypeReference<List<User>>() {
-            },true);
-        }
+        List<User> list = list(queryWrapper);
         Map<String,Object> dataMap = new HashMap<>();
         // codeUseList：处理后的所有符合条件的数据（list）
         // 组装返回结果对象 list：当前页数据列表 total：数据总数
@@ -135,22 +121,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
+    public boolean saveUser(User user) {
+        return save(user);
+    }
+
+    @Override
+    public int updateUser(User user) {
+        return userMapper.updateById(user);
+    }
+
+    @Override
+    public boolean bindEmail(String userId, String email) {
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id",userId);
+        updateWrapper.set("email",email);
+        return update(updateWrapper);
+    }
+
+    @Override
     public void updatePassword(UserPasswordDTO userPasswordDTO) {
-        // 待优化，判断原密码正确
-        int update = userMapper.updatePassword(userPasswordDTO);
+        int update = userMapper.updatePWByUN(userPasswordDTO);
         if (update < 1) {
             throw new ServiceException(ResultCodeEnum.PARAM_PASSWORD_ERROR);
         }
     }
 
     public User getUserInfo(UserDTO userDTO){
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username",userDTO.getUsername());
-        queryWrapper.eq("password", userDTO.getPassword());
-
         User one = null;
         try {
-            one = getOne(queryWrapper);
+            one = userMapper.selectUserAllByUN(userDTO.getUsername(),userDTO.getPassword());
         } catch (Exception e) {
             LOG.error(e);
             throw new ServiceException(ResultCodeEnum.SYSTEM_ERROR);
@@ -164,11 +163,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * @return
      */
     public List<Menu> getRoleMenus(String role){
-        Integer roleId = roleMapper.selectByFlag(role);
+        Integer roleId = roleMapper.selectRoleIdByFlag(role);
 
-        List<Integer> menuIds = roleMenuMapper.selectByRoleId(roleId);
+        List<Integer> menuIds = roleMenuMapper.selectRMByRoleId(roleId);
         // 查出所有菜单
-        List<Menu> menus = menuService.selectMenus("");
+        List<Menu> menus = menuService.listMenu("");
         List<Menu> roleMenus = new ArrayList<>();
         // 筛选当前用户菜单
         for(Menu menu: menus){

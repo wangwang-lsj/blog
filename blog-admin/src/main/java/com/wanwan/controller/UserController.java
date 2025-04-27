@@ -7,22 +7,23 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-
-import com.wanwan.common.Constants;
+import com.wanwan.annotation.AuthAccess;
 import com.wanwan.common.Result;
 import com.wanwan.common.enums.ResultCodeEnum;
-import com.wanwan.entity.User;
 import com.wanwan.dto.UserDTO;
 import com.wanwan.dto.UserPasswordDTO;
+import com.wanwan.entity.User;
 import com.wanwan.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import com.wanwan.utils.JWTUtils;
+import com.wanwan.utils.RedisUtil;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -38,19 +39,18 @@ import java.util.List;
  * @since 2024-01-22
  */
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/users")
 public class UserController {
     @Resource
     private IUserService userService;
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 用户注册
      * @param userDto
      * @return user
      */
-    @PostMapping("/users/register")
+    @AuthAccess
+    @PostMapping("/register")
     public Result register(@RequestBody UserDTO userDto) {
         String username = userDto.getUsername();
         String password = userDto.getPassword();
@@ -66,7 +66,8 @@ public class UserController {
      * @param userDto
      * @return userDTO
      */
-    @PostMapping("/users/login")
+    @AuthAccess
+    @PostMapping("/login")
     public Result login(@RequestBody UserDTO userDto) {
         String username = userDto.getUsername();
         String password = userDto.getPassword();
@@ -75,6 +76,20 @@ public class UserController {
         }
         UserDTO dto = userService.login(userDto);
         return Result.success(dto);
+    }
+    @PostMapping("/bindemail")
+    public Result bindEmail(HttpServletRequest request, @RequestParam String email, @RequestParam String code) {
+        String token = request.getHeader("token");
+        DecodedJWT decodedJWT = JWTUtils.getToken(token);
+        String userId = decodedJWT.getClaim("userId").asString();
+
+        String emailCodeKey = "email_code:"+email;
+        String emailCode = RedisUtil.get(emailCodeKey, String.class);
+        if(code.equals(emailCode)) {
+            return Result.success(userService.bindEmail(userId,email));
+        }else {
+            return Result.error(ResultCodeEnum.USER_EMAIL_CODE_ERROR);
+        }
     }
 
     /**
@@ -88,37 +103,43 @@ public class UserController {
      * @param email
      * @return Map<String,Object>
      */
-    @GetMapping("/users/page")
-    public Result page(@RequestParam Integer pageNum,
-                             @RequestParam Integer pageSize,
-                             @RequestParam(defaultValue = "") String username,
-                             @RequestParam(defaultValue = "") String nickname,
-                             @RequestParam(defaultValue = "") String address,
-                             @RequestParam(defaultValue = "") String phone,
-                             @RequestParam(defaultValue = "") String email
+    @GetMapping("/page")
+    public Result queryPage(@RequestParam Integer pageNum,
+                       @RequestParam Integer pageSize,
+                       @RequestParam(defaultValue = "") String username,
+                       @RequestParam(defaultValue = "") String nickname,
+                       @RequestParam(defaultValue = "") String address,
+                       @RequestParam(defaultValue = "") String phone,
+                       @RequestParam(defaultValue = "") String email
     ) {
-        return Result.success(userService.findByPageOrSearch(pageNum, pageSize, username, nickname, address, phone, email));
+        return Result.success(userService.pageUserByCondition(pageNum, pageSize, username, nickname, address, phone, email));
     }
 
     /**
-     * 保存或更新用户
+     * 新增用户
      * @param user
      * @return Boolean
      */
-    @PostMapping("/users")
-    public Result saveOrUpdate(@RequestBody User user) {
-        stringRedisTemplate.delete(Constants.USER_KEY);
-        return Result.success(userService.saveOrUpdate(user));
+    @PostMapping("")
+    public Result create(@RequestBody User user) {
+        return Result.success(userService.saveUser(user));
     }
-
+    /**
+     * 修改用户
+     * @param user
+     * @return Boolean
+     */
+    @PutMapping("")
+    public Result modify(@RequestBody User user) {
+        return Result.success(userService.updateUser(user));
+    }
     /**
      * 通过id删除
      * @param id
      * @return Boolean
      */
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public Result deleteById(@PathVariable Integer id) {
-        stringRedisTemplate.delete(Constants.USER_KEY);
         return Result.success(userService.removeById(id));
     }
 
@@ -127,9 +148,8 @@ public class UserController {
      * @param ids
      * @return Boolean
      */
-    @DeleteMapping("/users")
+    @DeleteMapping("")
     public Result deleteBatch(@RequestBody List<Integer> ids) {
-        stringRedisTemplate.delete(Constants.USER_KEY);
         return Result.success(userService.removeBatchByIds(ids));
     }
 
@@ -138,8 +158,8 @@ public class UserController {
      * @param userPasswordDTO
      * @return 异常返回数据
      */
-    @PutMapping("/users")
-    public Result password(@RequestBody UserPasswordDTO userPasswordDTO) {
+    @PatchMapping("")
+    public Result modifyPassword(@RequestBody UserPasswordDTO userPasswordDTO) {
         userService.updatePassword(userPasswordDTO);
         return Result.success();
     }
@@ -149,8 +169,8 @@ public class UserController {
      * @param username
      * @return user
      */
-    @GetMapping("/users/{username}")
-    public Result getByName(@PathVariable String username) {
+    @GetMapping("/{username}")
+    public Result queryByName(@PathVariable String username) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         User one = userService.getOne(queryWrapper);
@@ -172,21 +192,13 @@ public class UserController {
     //     return Result.success(userService.list(queryWrapper));
     // }
 
-    /**
-     * 重置redis缓存
-     * @return Boolean
-     */
-    @DeleteMapping("/users/reset")
-    public Result reset() {
-        return Result.success(stringRedisTemplate.delete(Constants.USER_KEY));
-    }
 
     /**
      * 导出用户表为excel
      * @param response
      * @throws Exception
      */
-    @GetMapping("/users/export")
+    @GetMapping("/export")
     public void exportExcel(HttpServletResponse response) throws Exception {
         List<User> list = userService.list();
         // 通过工具类创建writer
@@ -218,7 +230,7 @@ public class UserController {
      * @return Boolean
      * @throws Exception
      */
-    @PostMapping("/users/import")
+    @PostMapping("/import")
     public Result importExcel(MultipartFile file) throws Exception {
         InputStream inputStream = file.getInputStream();
         ExcelReader reader = ExcelUtil.getReader(inputStream);
@@ -239,8 +251,9 @@ public class UserController {
             user.setAvatarUrl(list.get(6).toString());
             userList.add(user);
         }
-        stringRedisTemplate.delete(Constants.USER_KEY);
         return Result.success(userService.saveBatch(userList));
     }
+
+
 }
 

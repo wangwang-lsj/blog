@@ -4,16 +4,16 @@
 
     <!-- 在您的 SQL 映射文件中 -->
     <!-- 使用 <include> 标签引入另一个文件中的查询语句 -->
-    <select id="selectReplyTotalCount" resultType="int">
+    <select id="selectCommentCount" resultType="int">
         <include refid="com.wanwan.mapper.CommentMapper.selectCommentCountSql"/>
     </select>
     <resultMap id="ArticleMap" type="com.wanwan.entity.Article">
         <result property="id" column="id"/>
-        <association property="commentCount" javaType="java.lang.Long"
-                     select="selectReplyTotalCount" column="id"/>
+        <association property="commentCount" javaType="java.lang.Integer"
+                     select="selectCommentCount" column="id"/>
     </resultMap>
 
-    <select id="selectAllByPage" resultMap="ArticleMap">
+    <select id="selectArticlePageByCondition" resultMap="ArticleMap">
         SELECT
         a.*,c.name as categoryName,u.username as userName
         FROM article a
@@ -39,7 +39,7 @@
         </if>
 
     </select>
-    <select id="getOneAllById" resultType="com.wanwan.entity.Article">
+    <select id="selectArticleById" resultType="com.wanwan.entity.Article">
         SELECT
         a.*,c.name as categoryName,u.username as userName
         FROM article a
@@ -48,6 +48,12 @@
         where a.id = #{id}
     </select>
 
-
+    <select id="selectArticleByHomeShow" resultMap="ArticleMap">
+        select
+            a.*,c.name as categoryName
+            from article a
+            left join category c on a.category_id = c.id
+            where a.home_show=1
+    </select>
 
 </mapper>

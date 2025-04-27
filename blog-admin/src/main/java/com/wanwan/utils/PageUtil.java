@@ -12,7 +12,7 @@ import java.util.List;
  * @description:
  */
 @Data
-public class PageUtils {
+public class PageUtil {
     private long pageNum;
 
     private long pageSize;
@@ -21,14 +21,14 @@ public class PageUtils {
 
     private List<T> list;
 
-    public PageUtils(IPage<T> page) {
+    public PageUtil(IPage<T> page) {
         this.list = page.getRecords();
         this.totalCount = page.getTotal();
         this.pageNum = page.getCurrent();
         this.pageSize = page.getSize();
     }
 
-    public PageUtils() {
+    public PageUtil() {
     }
 
 }

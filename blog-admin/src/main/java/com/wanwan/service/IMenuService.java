@@ -1,6 +1,7 @@
 package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wanwan.entity.Dict;
 import com.wanwan.entity.Menu;
 
 import java.util.List;
@@ -15,5 +16,11 @@ import java.util.List;
  */
 public interface IMenuService extends IService<Menu> {
 
-    List<Menu> selectMenus(String name);
+    List<Menu> listMenu(String name);
+
+    boolean saveMenu(Menu menu);
+
+    int updateMenu(Menu menu);
+
+    List<Dict> listIcon();
 }
