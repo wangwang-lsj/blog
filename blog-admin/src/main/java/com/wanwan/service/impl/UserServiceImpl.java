@@ -21,6 +21,7 @@ import com.wanwan.utils.JWTUtils;
 import com.wanwan.utils.MyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -52,22 +53,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private RoleMenuMapper roleMenuMapper;
     @Resource
     private IMenuService menuService;
+    @Resource
+    private PasswordEncoder passwordEncoder;
     @Override
     public UserDTO login(UserDTO userDTO) {
         log.info("登录业务执行");
-        User one = getUserInfo(userDTO);
-        if(one != null){
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", userDTO.getUsername()));
+        if (passwordEncoder.matches(userDTO.getPassword(),user.getPassword())){
             // 刷新上次登陆时间
-            one.setRecentlyLanded(DateUtil.date());
-            updateById(one);
+            user.setRecentlyLanded(DateUtil.date());
+            updateById(user);
 
-            BeanUtil.copyProperties(one,userDTO,true);
+            BeanUtil.copyProperties(user,userDTO,true);
             Map<String,String> map = new HashMap<>();
-            map.put("userId",one.getId().toString());
+            map.put("userId",user.getId().toString());
             String token = JWTUtils.genToken(map);
             userDTO.setToken(token);
             userDTO.setPassword(null);
-            String role = one.getRole();
+            String role = user.getRole();
             List<Menu> roleMenus = getRoleMenus(role);
             userDTO.setMenus(roleMenus);
             return userDTO;
@@ -83,6 +86,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             one = new User();
             BeanUtil.copyProperties(userDTO, one ,true);
             one.setNickname("游客"+ MyUtil.generateRandomString());
+            one.setPassword(passwordEncoder.encode(one.getPassword()));
             one.setAvatarUrl("http://"+serverIp+":9090/api/files/b4b86bb7e08f4876a3cd400f8220b6f6.jpeg");
             save(one);
         }else {

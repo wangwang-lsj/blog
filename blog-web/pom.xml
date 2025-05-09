@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <name>blog-admin</name>
-    <description>wanwan's blog admin</description>
+    <name>blog-front</name>
+    <description>wanwan's blog front</description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.wanwan</groupId>
@@ -11,7 +11,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>blog-admin</artifactId>
+    <artifactId>blog-web</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -19,7 +19,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.wanwan</groupId>
@@ -65,17 +64,16 @@
             <artifactId>jedis</artifactId>
         </dependency>
 
-
-
         <!-- Swagger -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
         </dependency>
 
+        <!-- JWT -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
         </dependency>
 
         <!-- POI Excel -->
@@ -90,6 +88,7 @@
             <artifactId>ip2region</artifactId>
         </dependency>
     </dependencies>
+
     <build>
         <resources>
             <resource>
@@ -122,7 +121,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.7.18</version>
                 <configuration>
-                    <mainClass>com.wanwan.Admin</mainClass>
+                    <mainClass>com.wanwan.Main</mainClass>
                     <skip>false</skip>
                 </configuration>
                 <executions>

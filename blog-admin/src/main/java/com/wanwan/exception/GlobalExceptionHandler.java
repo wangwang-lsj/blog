@@ -1,9 +1,12 @@
 package com.wanwan.exception;
 
 import com.wanwan.common.Result;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.stream.Collectors;
 
 /**
  * @author：玩玩
@@ -23,5 +26,14 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public Result handle(ServiceException se){
         return Result.error(se.getCode(),se.getMessage());
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Result handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        return Result.error("400",errorMessage);
     }
 }
