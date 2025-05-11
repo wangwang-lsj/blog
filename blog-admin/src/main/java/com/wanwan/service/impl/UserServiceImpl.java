@@ -7,12 +7,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanwan.common.enums.ResultCodeEnum;
+import com.wanwan.dto.*;
 import com.wanwan.exception.ServiceException;
 import com.wanwan.mapper.RoleMapper;
 import com.wanwan.mapper.RoleMenuMapper;
 import com.wanwan.mapper.UserMapper;
-import com.wanwan.dto.UserDTO;
-import com.wanwan.dto.UserPasswordDTO;
 import com.wanwan.entity.Menu;
 import com.wanwan.entity.User;
 import com.wanwan.service.IMenuService;
@@ -24,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
     private static final Log LOG = Log.get();
+    private String defaultAvatarUrl;
     @Value("${server.ip}")
     private String serverIp;
     @Resource
@@ -55,44 +56,64 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private IMenuService menuService;
     @Resource
     private PasswordEncoder passwordEncoder;
-    @Override
-    public UserDTO login(UserDTO userDTO) {
-        log.info("登录业务执行");
-        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", userDTO.getUsername()));
-        if (passwordEncoder.matches(userDTO.getPassword(),user.getPassword())){
-            // 刷新上次登陆时间
-            user.setRecentlyLanded(DateUtil.date());
-            updateById(user);
 
-            BeanUtil.copyProperties(user,userDTO,true);
-            Map<String,String> map = new HashMap<>();
-            map.put("userId",user.getId().toString());
-            String token = JWTUtils.genToken(map);
-            userDTO.setToken(token);
-            userDTO.setPassword(null);
-            String role = user.getRole();
-            List<Menu> roleMenus = getRoleMenus(role);
-            userDTO.setMenus(roleMenus);
-            return userDTO;
-        }else{
+    @PostConstruct
+    public void init() {
+        defaultAvatarUrl = "http://" + serverIp + ":9090/api/files/b4b86bb7e08f4876a3cd400f8220b6f6.jpeg";
+    }
+    @Override
+    public UserLoginResponseDTO login(UserLoginDTO userLoginDTO) {
+        log.info("用户开始登录: {}", userLoginDTO.getUsername());
+        // 1. 查询用户
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", userLoginDTO.getUsername()));
+        if (user == null) {
+            log.warn("用户不存在: {}", userLoginDTO.getUsername());
             throw new ServiceException(ResultCodeEnum.USER_ACCOUNT_ERROR);
         }
+        // 2. 验证密码
+        if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
+            log.warn("密码错误: {}", userLoginDTO.getUsername());
+            throw new ServiceException(ResultCodeEnum.USER_ACCOUNT_ERROR);
+        }
+        // 3. 更新登录时间
+        user.setRecentlyLanded(DateUtil.date());
+        updateById(user);
+        // 4. 构建响应 DTO
+        UserLoginResponseDTO responseDTO = new UserLoginResponseDTO();
+        BeanUtil.copyProperties(user, responseDTO,true);
+
+        // 5. 生成 Token
+        Map<String, String> claims = new HashMap<>();
+        claims.put("userId", user.getId().toString());
+        String token = JWTUtils.genToken(claims);
+        responseDTO.setToken(token);
+
+        // 6. 获取菜单信息
+        List<Menu> roleMenus = getRoleMenus(user.getRole());
+        responseDTO.setMenus(roleMenus);
+
+        log.info("用户登录成功: {}", user.getUsername());
+        return responseDTO;
     }
 
     @Override
-    public User register(UserDTO userDTO) {
-        User one = getUserInfo(userDTO);
-        if(one == null){
-            one = new User();
-            BeanUtil.copyProperties(userDTO, one ,true);
-            one.setNickname("游客"+ MyUtil.generateRandomString());
-            one.setPassword(passwordEncoder.encode(one.getPassword()));
-            one.setAvatarUrl("http://"+serverIp+":9090/api/files/b4b86bb7e08f4876a3cd400f8220b6f6.jpeg");
-            save(one);
-        }else {
+    public User register(UserRegisterDTO userRegisterDTO) {
+        User existingUser = userMapper.selectOne(new QueryWrapper<User>().eq("username", userRegisterDTO.getUsername()));
+        if (existingUser != null) {
+            log.warn("尝试注册已存在的用户名：{}", userRegisterDTO.getUsername());
             throw new ServiceException(ResultCodeEnum.USER_EXIT_ERROR);
         }
-        return one;
+        // 映射 DTO 到 Entity
+        User user = BeanUtil.copyProperties(userRegisterDTO, User.class);
+        // 设置默认昵称
+        user.setNickname("游客" + MyUtil.generateRandomString());
+        // 加密密码
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 设置默认头像
+        user.setAvatarUrl(defaultAvatarUrl);
+        // 保存用户
+        save(user);
+        return user;
     }
 
     @Override
@@ -125,6 +146,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
+    public User queryUser(String username) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User one = userMapper.selectOne(queryWrapper);
+        return one;
+    }
+
+    @Override
     public boolean saveUser(User user) {
         return save(user);
     }
@@ -148,17 +177,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (update < 1) {
             throw new ServiceException(ResultCodeEnum.PARAM_PASSWORD_ERROR);
         }
-    }
-
-    public User getUserInfo(UserDTO userDTO){
-        User one = null;
-        try {
-            one = userMapper.selectUserAllByUN(userDTO.getUsername(),userDTO.getPassword());
-        } catch (Exception e) {
-            LOG.error(e);
-            throw new ServiceException(ResultCodeEnum.SYSTEM_ERROR);
-        }
-        return one;
     }
 
     /**

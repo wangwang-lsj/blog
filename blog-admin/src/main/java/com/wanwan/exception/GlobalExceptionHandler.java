@@ -5,6 +5,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
  * @since：2024/1/23 22:15
  * @description:
  */
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
@@ -23,7 +24,6 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(ServiceException.class)
-    @ResponseBody
     public Result handle(ServiceException se){
         return Result.error(se.getCode(),se.getMessage());
     }

@@ -12,8 +12,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanwan.annotation.AuthAccess;
 import com.wanwan.common.Result;
 import com.wanwan.common.enums.ResultCodeEnum;
-import com.wanwan.dto.UserDTO;
-import com.wanwan.dto.UserPasswordDTO;
+import com.wanwan.dto.*;
 import com.wanwan.entity.User;
 import com.wanwan.service.IUserService;
 import com.wanwan.utils.JWTUtils;
@@ -25,6 +24,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -46,35 +46,25 @@ public class UserController {
 
     /**
      * 用户注册
-     * @param userDto
+     * @param userRegisterDTO
      * @return user
      */
     @AuthAccess
     @PostMapping("/register")
-    public Result register(@RequestBody UserDTO userDto) {
-        String username = userDto.getUsername();
-        String password = userDto.getPassword();
-        if (StrUtil.isBlank(username) || StrUtil.isBlank(password)) {
-            return Result.error(ResultCodeEnum.PARAM_ERROR);
-        }
-        User dto = userService.register(userDto);
+    public Result register(@Valid @RequestBody UserRegisterDTO userRegisterDTO) {
+        User dto = userService.register(userRegisterDTO);
         return Result.success(dto);
     }
 
     /**
      * 用户登录
-     * @param userDto
+     * @param userLoginDTO
      * @return userDTO
      */
     @AuthAccess
     @PostMapping("/login")
-    public Result login(@RequestBody UserDTO userDto) {
-        String username = userDto.getUsername();
-        String password = userDto.getPassword();
-        if (StrUtil.isBlank(username) || StrUtil.isBlank(password)) {
-            return Result.error(ResultCodeEnum.PARAM_ERROR);
-        }
-        UserDTO dto = userService.login(userDto);
+    public Result login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+        UserLoginResponseDTO dto = userService.login(userLoginDTO);
         return Result.success(dto);
     }
     @PostMapping("/bindemail")
@@ -171,12 +161,7 @@ public class UserController {
      */
     @GetMapping("/{username}")
     public Result queryByName(@PathVariable String username) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username", username);
-        User one = userService.getOne(queryWrapper);
-        UserDTO userDTO = new UserDTO();
-        BeanUtil.copyProperties(one, userDTO, true);
-        return Result.success(one);
+        return Result.success(userService.queryUser(username));
     }
 
 

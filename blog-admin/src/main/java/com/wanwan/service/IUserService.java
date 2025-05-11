@@ -1,8 +1,7 @@
 package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.dto.UserDTO;
-import com.wanwan.dto.UserPasswordDTO;
+import com.wanwan.dto.*;
 import com.wanwan.entity.User;
 
 import java.util.Map;
@@ -17,9 +16,9 @@ import java.util.Map;
  */
 public interface IUserService extends IService<User> {
 
-    UserDTO login(UserDTO userDto);
+    UserLoginResponseDTO login(UserLoginDTO userLoginDTO);
 
-    User register(UserDTO userDto);
+    User register(UserRegisterDTO userRegisterDTO);
     // User registerByVistor();
     // User registerByEmail();
     // User registerByPhone();
@@ -28,7 +27,7 @@ public interface IUserService extends IService<User> {
     void updatePassword(UserPasswordDTO userPasswordDTO);
 
     Map<String,Object> pageUserByCondition(Integer pageNum, Integer pageSize, String username, String nickname, String address, String phone, String email);
-
+    User queryUser(String username);
     boolean saveUser(User user);
 
     int updateUser(User user);
