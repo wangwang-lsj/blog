@@ -5,6 +5,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanwan.common.enums.ResultCodeEnum;
 import com.wanwan.dto.*;
@@ -117,31 +120,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public Map<String, Object> pageUserByCondition(Integer pageNum, Integer pageSize, String username, String nickname, String address, String phone, String email) {
+    public Map<String, Object> pageUserByCondition(UserPageDTO userPageDTO) {
+        Integer pageNum = userPageDTO.getPageNum();
+        Integer pageSize = userPageDTO.getPageSize();
+        // 记录进入方法的日志
+        log.info("进入分页查询用户方法，请求参数：{}", userPageDTO);
+        // 构建查询条件
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        if(!"".equals(username)){
-            queryWrapper.like("username",username);
-        }
-        if(!"".equals(nickname)){
-            queryWrapper.like("nickname",nickname);
-        }
-        if(!"".equals(address)){
-            queryWrapper.like("address",address);
-        }
-        if(!"".equals(phone)){
-            queryWrapper.like("phone",phone);
-        }
-        if(!"".equals(email)){
-            queryWrapper.like("email",email);
-        }
+        Map.of(
+                "username", userPageDTO.getUsername(),
+                "nickname", userPageDTO.getNickname(),
+                "address", userPageDTO.getAddress(),
+                "phone", userPageDTO.getPhone(),
+                "email", userPageDTO.getEmail()
+        ).forEach((column, value) -> {
+            if (StringUtils.isNotBlank((CharSequence) value)) {
+                log.debug("添加模糊查询条件：{} 包含 '{}'", column, value);
+                queryWrapper.like(column, value);
+            }
+        });
         queryWrapper.orderByDesc("id");
-        List<User> list = list(queryWrapper);
-        Map<String,Object> dataMap = new HashMap<>();
-        // codeUseList：处理后的所有符合条件的数据（list）
-        // 组装返回结果对象 list：当前页数据列表 total：数据总数
-        dataMap.put("records", list.stream().skip((long) (pageNum - 1) * pageSize)
-                .limit(pageSize).collect(Collectors.toList()));
-        dataMap.put("total", list.size());
+
+        // 使用 MyBatis Plus 的 Page 进行分页查询
+        IPage<User> page = new Page<>(pageNum, pageSize);
+        long startTime = System.currentTimeMillis();
+        log.info("开始执行数据库查询...");
+
+        IPage<User> resultPage = userMapper.selectPage(page, queryWrapper);
+        long endTime = System.currentTimeMillis();
+        // 记录查询耗时
+        log.info("数据库查询完成，耗时 {} 毫秒，共查询到 {} 条数据", (endTime - startTime), resultPage.getTotal());
+        // 组装返回结果
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("records", resultPage.getRecords());     // 当前页数据
+        dataMap.put("total", resultPage.getTotal());         // 总记录数
+        dataMap.put("pageNum", pageNum);
+        dataMap.put("pageSize", pageSize);
+        dataMap.put("pages", resultPage.getPages());         // 总页数
+        log.info("分页数据组装完成，当前页返回 {} 条数据", resultPage.getRecords().size());
         return dataMap;
     }
 

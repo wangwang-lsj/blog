@@ -1,14 +1,11 @@
 package com.wanwan.controller;
 
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanwan.annotation.AuthAccess;
 import com.wanwan.common.Result;
 import com.wanwan.common.enums.ResultCodeEnum;
@@ -84,25 +81,10 @@ public class UserController {
 
     /**
      * 按条件分页查询
-     * @param pageNum
-     * @param pageSize
-     * @param username
-     * @param nickname
-     * @param address
-     * @param phone
-     * @param email
-     * @return Map<String,Object>
      */
     @GetMapping("/page")
-    public Result queryPage(@RequestParam Integer pageNum,
-                       @RequestParam Integer pageSize,
-                       @RequestParam(defaultValue = "") String username,
-                       @RequestParam(defaultValue = "") String nickname,
-                       @RequestParam(defaultValue = "") String address,
-                       @RequestParam(defaultValue = "") String phone,
-                       @RequestParam(defaultValue = "") String email
-    ) {
-        return Result.success(userService.pageUserByCondition(pageNum, pageSize, username, nickname, address, phone, email));
+    public Result queryPage(@ModelAttribute @Valid UserPageDTO userPageDTO){
+        return Result.success(userService.pageUserByCondition(userPageDTO));
     }
 
     /**
