@@ -9,18 +9,25 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wanwan.common.enums.ResultCodeEnum;
-import com.wanwan.dto.*;
+import com.wanwan.enums.ResultCodeEnum;
+import com.wanwan.model.dto.*;
 import com.wanwan.exception.ServiceException;
 import com.wanwan.mapper.RoleMapper;
 import com.wanwan.mapper.RoleMenuMapper;
 import com.wanwan.mapper.UserMapper;
-import com.wanwan.entity.Menu;
-import com.wanwan.entity.User;
+import com.wanwan.model.dto.UserLoginDTO;
+import com.wanwan.model.dto.UserPageDTO;
+import com.wanwan.model.dto.UserPasswordDTO;
+import com.wanwan.model.dto.UserRegisterDTO;
+import com.wanwan.model.entity.Menu;
+import com.wanwan.model.entity.User;
 import com.wanwan.service.IMenuService;
 import com.wanwan.service.IUserService;
 import com.wanwan.utils.JWTUtils;
 import com.wanwan.utils.MyUtil;
+import com.wanwan.utils.RedisUtil;
+import com.wanwan.model.vo.UserLoginVO;
+import com.wanwan.model.vo.UserRegisterVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -65,7 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         defaultAvatarUrl = "http://" + serverIp + ":9090/api/files/b4b86bb7e08f4876a3cd400f8220b6f6.jpeg";
     }
     @Override
-    public UserLoginResponseDTO login(UserLoginDTO userLoginDTO) {
+    public UserLoginVO login(UserLoginDTO userLoginDTO) {
         log.info("用户开始登录: {}", userLoginDTO.getUsername());
         // 1. 查询用户
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", userLoginDTO.getUsername()));
@@ -82,7 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setRecentlyLanded(DateUtil.date());
         updateById(user);
         // 4. 构建响应 DTO
-        UserLoginResponseDTO responseDTO = new UserLoginResponseDTO();
+        UserLoginVO responseDTO = new UserLoginVO();
         BeanUtil.copyProperties(user, responseDTO,true);
 
         // 5. 生成 Token
@@ -100,7 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public User register(UserRegisterDTO userRegisterDTO) {
+    public UserRegisterVO register(UserRegisterDTO userRegisterDTO) {
         User existingUser = userMapper.selectOne(new QueryWrapper<User>().eq("username", userRegisterDTO.getUsername()));
         if (existingUser != null) {
             log.warn("尝试注册已存在的用户名：{}", userRegisterDTO.getUsername());
@@ -116,7 +122,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setAvatarUrl(defaultAvatarUrl);
         // 保存用户
         save(user);
-        return user;
+        // 构建返回结果
+        UserRegisterVO userRegisterVO = new UserRegisterVO();
+        userRegisterVO.setNickname(user.getNickname());
+        userRegisterVO.setAvatarUrl(defaultAvatarUrl);
+        userRegisterVO.setCreateTime(user.getCreateTime());
+        return userRegisterVO;
     }
 
     @Override
@@ -180,18 +191,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public boolean bindEmail(String userId, String email) {
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id",userId);
-        updateWrapper.set("email",email);
-        return update(updateWrapper);
+    public boolean bindEmail(String userId, String email, String code) {
+        String emailCodeKey = "email_code:" + email;
+        String emailCode = RedisUtil.get(emailCodeKey, String.class);
+
+        if (code.equals(emailCode)) {
+            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("id",userId);
+            updateWrapper.set("email",email);
+            return update(updateWrapper);
+        } else {
+            throw new ServiceException(ResultCodeEnum.USER_EMAIL_CODE_ERROR);
+        }
     }
 
     @Override
-    public void updatePassword(UserPasswordDTO userPasswordDTO) {
+    public int updatePassword(UserPasswordDTO userPasswordDTO) {
         int update = userMapper.updatePWByUN(userPasswordDTO);
         if (update < 1) {
             throw new ServiceException(ResultCodeEnum.PARAM_PASSWORD_ERROR);
+        }else {
+            return update;
         }
     }
 

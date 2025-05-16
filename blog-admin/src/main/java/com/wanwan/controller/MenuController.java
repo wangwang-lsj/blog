@@ -1,8 +1,9 @@
 package com.wanwan.controller;
 
 
-import com.wanwan.common.Result;
-import com.wanwan.entity.Menu;
+import com.wanwan.model.entity.Dict;
+import com.wanwan.response.Result;
+import com.wanwan.model.entity.Menu;
 import com.wanwan.service.IMenuService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class MenuController {
      * @return List<Menu>
      */
     @GetMapping("")
-    public Result queryByName(@RequestParam(defaultValue = "") String name) {
+    public Result<List<Menu>> queryByName(@RequestParam(defaultValue = "") String name) {
         return Result.success(menuService.listMenu(name));
     }
 
@@ -38,8 +39,7 @@ public class MenuController {
      * @return List<Dict>
      */
     @GetMapping("/icons")
-    public Result queryIcons() {
-
+    public Result<List<Dict>> queryIcons() {
         return Result.success(menuService.listIcon());
     }
     /**
@@ -49,7 +49,7 @@ public class MenuController {
      */
     // 新增或者更新
     @PostMapping("")
-    public Result create(@RequestBody Menu menu) {
+    public Result<Boolean> create(@RequestBody Menu menu) {
         return Result.success(menuService.saveMenu(menu));
     }
     /**
@@ -59,7 +59,7 @@ public class MenuController {
      */
     // 新增或者更新
     @PutMapping("")
-    public Result modify(@RequestBody Menu menu) {
+    public Result<Integer> modify(@RequestBody Menu menu) {
         return Result.success(menuService.updateMenu(menu));
     }
     /**
@@ -68,7 +68,7 @@ public class MenuController {
      * @return Boolean
      */
     @DeleteMapping("/{id}")
-    public Result deleteById(@PathVariable Integer id) {
+    public Result<Boolean> deleteById(@PathVariable Integer id) {
 
         return Result.success(menuService.removeById(id));
     }
@@ -79,7 +79,7 @@ public class MenuController {
      * @return Boolean
      */
     @DeleteMapping("")
-    public Result deleteBatch(@RequestBody List<Integer> ids) {
+    public Result<Boolean> deleteBatch(@RequestBody List<Integer> ids) {
         return Result.success(menuService.removeByIds(ids));
     }
 }

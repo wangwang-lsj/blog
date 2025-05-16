@@ -1,7 +1,7 @@
 package com.wanwan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wanwan.entity.RoleMenu;
+import com.wanwan.model.entity.RoleMenu;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

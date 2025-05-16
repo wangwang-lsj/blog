@@ -2,7 +2,7 @@ package com.wanwan.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanwan.mapper.UserArticleLikeMapper;
-import com.wanwan.entity.UserArticleLike;
+import com.wanwan.model.entity.UserArticleLike;
 import com.wanwan.service.IUserArticleLikeService;
 import org.springframework.stereotype.Service;
 

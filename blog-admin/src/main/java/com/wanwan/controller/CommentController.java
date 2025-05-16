@@ -1,12 +1,15 @@
 package com.wanwan.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wanwan.annotation.AuthAccess;
-import com.wanwan.common.Result;
-import com.wanwan.entity.Comment;
+import com.wanwan.model.dto.CommentDTO;
+import com.wanwan.response.Result;
+import com.wanwan.model.entity.Comment;
 import com.wanwan.service.ICommentService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author：玩玩
@@ -20,39 +23,39 @@ public class CommentController {
     private ICommentService commentService;
     @AuthAccess
     @GetMapping("/page")
-    public Result queryPageByCondition(@RequestParam Integer pageNum,
-                                       @RequestParam Integer pageSize,
-                                       @RequestParam Integer articleId,
-                                       @RequestParam Integer currentUserId
+    public Result<IPage<CommentDTO>> queryPageByCondition(@RequestParam Integer pageNum,
+                                                          @RequestParam Integer pageSize,
+                                                          @RequestParam Integer articleId,
+                                                          @RequestParam Integer currentUserId
     ){
 
         return Result.success(commentService.pageComment(pageNum,pageSize,articleId,currentUserId));
     }
     @AuthAccess
     @GetMapping("/replies")
-    public Result queryReplies(@RequestParam Integer commentId,
-                             @RequestParam Integer startIndex,
-                             @RequestParam Integer count,
-                             @RequestParam Integer currentUserId) {
+    public Result<List<CommentDTO>> queryReplies(@RequestParam Integer commentId,
+                                                 @RequestParam Integer startIndex,
+                                                 @RequestParam Integer count,
+                                                 @RequestParam Integer currentUserId) {
         return Result.success(commentService.pageSecondComment(commentId, startIndex,count,currentUserId));
     }
     @AuthAccess
     @GetMapping("/{articleId}")
-    public Result queryCountByArticleId(@PathVariable Integer articleId){
+    public Result<Integer> queryCountByArticleId(@PathVariable Integer articleId){
         return Result.success(commentService.countComment(articleId));
     }
 
     @PostMapping()
-    public Result createComment(@RequestBody Comment comment) {
+    public Result<CommentDTO> createComment(@RequestBody Comment comment) {
         return Result.success(commentService.saveComment(comment));
     }
     @PostMapping("/like/{commentId}/{userId}")
-    public Result updateLike(@PathVariable Integer commentId,@PathVariable Integer userId){
+    public Result<Integer> updateLike(@PathVariable Integer commentId,@PathVariable Integer userId){
         commentService.like(commentId,userId);
         return Result.success();
     }
     @PostMapping("/dislike/{commentId}/{userId}")
-    public Result updateDisLike(@PathVariable Integer commentId,@PathVariable Integer userId){
+    public Result<Integer> updateDisLike(@PathVariable Integer commentId,@PathVariable Integer userId){
         commentService.disLike(commentId,userId);
         return Result.success();
     }

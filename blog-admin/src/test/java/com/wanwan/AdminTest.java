@@ -7,9 +7,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wanwan.common.Constants;
-import com.wanwan.common.enums.ResultCodeEnum;
-import com.wanwan.entity.Menu;
-import com.wanwan.entity.TestModel;
+import com.wanwan.enums.ResultCodeEnum;
+import com.wanwan.model.entity.Menu;
+import com.wanwan.model.entity.TestModel;
 import com.wanwan.mapper.*;
 import com.wanwan.service.impl.MenuServiceImpl;
 import com.wanwan.service.impl.MessageServiceImpl;
@@ -22,12 +22,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import redis.clients.jedis.Jedis;
 
 import javax.annotation.Resource;
-import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +86,7 @@ public class AdminTest {
     }
     @Test
     void contextLoads5() {
-        System.out.println(ResultCodeEnum.SUCCESS.code);
+        System.out.println(ResultCodeEnum.SUCCESS.getCode());
     }
     @Test
     void test0() {

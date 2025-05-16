@@ -1,4 +1,4 @@
-package com.wanwan.dto;
+package com.wanwan.model.dto;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;

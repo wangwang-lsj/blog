@@ -1,7 +1,7 @@
 package com.wanwan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wanwan.entity.Slideshow;
+import com.wanwan.model.entity.Slideshow;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

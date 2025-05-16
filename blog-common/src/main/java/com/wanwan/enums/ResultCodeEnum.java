@@ -1,10 +1,13 @@
-package com.wanwan.common.enums;
+package com.wanwan.enums;
+
+import lombok.Getter;
 
 /**
  * @author：玩玩
  * @since：2024/3/7 16:41
  * @description:
  */
+@Getter
 public enum ResultCodeEnum {
 
     // String CODE_400 = "400";    //参数错误
@@ -28,10 +31,11 @@ public enum ResultCodeEnum {
     USER_EMAIL_CODE_ERROR("5005", "用户邮箱验证码错误"),
     PARAM_PASSWORD_ERROR("5006","用户密码错误"),
     ERROR("500", "失败");
-    public String code;
-    public String msg;
+    private String code;
+    private String msg;
     ResultCodeEnum(String code, String msg){
         this.code = code;
         this.msg = msg;
     }
+
 }

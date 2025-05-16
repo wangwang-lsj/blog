@@ -5,7 +5,7 @@
 <mapper namespace="com.wanwan.mapper.CommentMapper">
 
     <!--涉及的表有用户，文章，评论，点赞，没问题勿动-->
-    <resultMap id="BaseResultMap" type="com.wanwan.entity.Comment">
+    <resultMap id="BaseResultMap" type="com.wanwan.model.entity.Comment">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="parentId" column="parent_id" jdbcType="BIGINT"/>
             <result property="replyUserId" column="reply_user_id" jdbcType="BIGINT"/>
@@ -17,7 +17,7 @@
             <result property="articleId" column="article_id" jdbcType="INTEGER"/>
     </resultMap>
 
-    <resultMap id="commentDTOMap" type="com.wanwan.dto.CommentDTO">
+    <resultMap id="commentDTOMap" type="com.wanwan.model.dto.CommentDTO">
 
         <!-- mybatis下面用了id之后, 他就不会帮我们自动映射了, 需要手动添加这个, 否则返回的数据里面id为null -->
         <result property="id" column="id"/>
@@ -27,11 +27,11 @@
         <association property="isLike" javaType="java.lang.Boolean"
                      select="selectLikeByCommentIdAndUserId" column="{commentId=id,userId=currentUserId}"/>
 
-        <collection property="children" ofType="com.wanwan.dto.CommentDTO"
+        <collection property="children" ofType="com.wanwan.model.dto.CommentDTO"
                     select="selectCommentPageByCommentId" column="{commentId=id,startIndex=startIndex,count=count,currentUserId=currentUserId}"/>
 
     </resultMap>
-    <resultMap id="SecondCommentDTOMap" type="com.wanwan.dto.CommentDTO">
+    <resultMap id="SecondCommentDTOMap" type="com.wanwan.model.dto.CommentDTO">
         <association property="isLike" javaType="java.lang.Boolean"
                      select="selectLikeByCommentIdAndUserId" column="{commentId=id,userId=currentUserId}"/>
     </resultMap>
@@ -76,7 +76,7 @@
 
     </select>
 
-    <select id="selectCommentById" resultType="com.wanwan.dto.CommentDTO">
+    <select id="selectCommentById" resultType="com.wanwan.model.dto.CommentDTO">
         SELECT  c.id, parent_id, reply_user_id, user_id, comment_content, c.create_time, like_num ,u.avatar_url,
                 c.reply_comment_id,
                 u.nickname , u2.nickname as reply_user_nickname

@@ -1,7 +1,7 @@
 package com.wanwan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wanwan.entity.Category;
+import com.wanwan.model.entity.Category;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

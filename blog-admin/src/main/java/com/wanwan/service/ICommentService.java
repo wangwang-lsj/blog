@@ -2,8 +2,8 @@ package com.wanwan.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.dto.CommentDTO;
-import com.wanwan.entity.Comment;
+import com.wanwan.model.dto.CommentDTO;
+import com.wanwan.model.entity.Comment;
 
 import java.util.List;
 

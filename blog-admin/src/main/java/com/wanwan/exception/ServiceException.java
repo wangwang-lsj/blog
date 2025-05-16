@@ -1,6 +1,6 @@
 package com.wanwan.exception;
 
-import com.wanwan.common.enums.ResultCodeEnum;
+import com.wanwan.enums.ResultCodeEnum;
 import lombok.Getter;
 
 /**
@@ -16,8 +16,8 @@ public class ServiceException extends RuntimeException{
         this.code=code;
     }
     public ServiceException(ResultCodeEnum resultCodeEnum){
-        super(resultCodeEnum.msg);
-        this.code = resultCodeEnum.code;
+        super(resultCodeEnum.getMsg());
+        this.code = resultCodeEnum.getCode();
     }
 
 }

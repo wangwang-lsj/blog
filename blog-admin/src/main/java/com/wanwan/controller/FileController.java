@@ -8,9 +8,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wanwan.annotation.AuthAccess;
-import com.wanwan.common.Result;
+import com.wanwan.response.Result;
 import com.wanwan.mapper.FileMapper;
-import com.wanwan.entity.File;
+import com.wanwan.model.entity.File;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,7 +47,7 @@ public class FileController {
      */
     @AuthAccess
     @PostMapping("/upload")
-    public Result upload(@RequestParam MultipartFile file)throws IOException {
+    public Result<String> upload(@RequestParam MultipartFile file)throws IOException {
         String originalFilename = file.getOriginalFilename();
         String type = FileUtil.extName(originalFilename);
         long size = file.getSize();
@@ -102,7 +102,7 @@ public class FileController {
      * @return
      */
     @GetMapping("/page")
-    public Result queryPage(@RequestParam Integer pageNum,
+    public Result<IPage<File>> queryPage(@RequestParam Integer pageNum,
                        @RequestParam Integer pageSize,
                        @RequestParam(defaultValue = "") String name
     ) {
@@ -118,17 +118,17 @@ public class FileController {
     }
 
     @PutMapping()
-    public Result modify(@RequestBody File file) {
+    public Result<Integer> modify(@RequestBody File file) {
         return Result.success(fileMapper.updateById(file));
     }
     @DeleteMapping("/{id}")
-    public Result deleteById(@PathVariable Integer id) {
+    public Result<Integer> deleteById(@PathVariable Integer id) {
         File file = fileMapper.selectById(id);
         file.setIsDelete(true);
         return Result.success(fileMapper.updateById(file));
     }
     @DeleteMapping()
-    public Result deleteBatch(@RequestBody List<Integer> ids){
+    public Result<Boolean> deleteBatch(@RequestBody List<Integer> ids){
         QueryWrapper<File> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id",ids);
         List<File> files = fileMapper.selectList(queryWrapper);
@@ -136,7 +136,7 @@ public class FileController {
             file.setIsDelete(true);
             fileMapper.updateById(file);
         }
-        return Result.success();
+        return Result.success(true);
     }
 
     /**

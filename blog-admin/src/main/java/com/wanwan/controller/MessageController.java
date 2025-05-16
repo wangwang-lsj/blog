@@ -3,8 +3,8 @@ package com.wanwan.controller;
 
 import cn.hutool.core.date.DateUtil;
 import com.wanwan.annotation.AuthAccess;
-import com.wanwan.common.Result;
-import com.wanwan.entity.Message;
+import com.wanwan.response.Result;
+import com.wanwan.model.entity.Message;
 import com.wanwan.service.IMessageService;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,29 +53,29 @@ public class MessageController {
     // 新增
     @AuthAccess
     @PostMapping()
-    public Result createMessage(@RequestBody Message message, HttpServletRequest request) {
+    public Result<Boolean> createMessage(@RequestBody Message message, HttpServletRequest request) {
         message = messageService.prepareMessageForSave(message, request);
         return Result.success(messageService.saveMessage(message));
     }
 
     @PatchMapping()
-    public Result updateShow(@RequestBody Message message) {
+    public Result<Boolean> updateShow(@RequestBody Message message) {
         return Result.success(messageService.updateShow(message));
     }
 
     @PutMapping()
-    public Result updateReply(@RequestBody Message message) {
+    public Result<Boolean> updateReply(@RequestBody Message message) {
         message.setReplyTime(DateUtil.date());
         return Result.success(messageService.reply(message));
     }
 
     @DeleteMapping("/{id}")
-    public Result deleteById(@PathVariable Integer id) {
+    public Result<Boolean> deleteById(@PathVariable Integer id) {
         return Result.success(messageService.removeMessage(id));
     }
 
     @DeleteMapping()
-    public Result deleteBatch(@RequestBody List<Integer> ids) {
+    public Result<Boolean> deleteBatch(@RequestBody List<Integer> ids) {
         return Result.success(messageService.removeMessages(ids));
     }
 

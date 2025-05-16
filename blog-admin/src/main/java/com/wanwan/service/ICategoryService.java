@@ -1,7 +1,7 @@
 package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.entity.Category;
+import com.wanwan.model.entity.Category;
 
 /**
  * <p>

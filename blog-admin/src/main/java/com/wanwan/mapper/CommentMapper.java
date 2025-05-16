@@ -3,8 +3,8 @@ package com.wanwan.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.wanwan.dto.CommentDTO;
-import com.wanwan.entity.Comment;
+import com.wanwan.model.dto.CommentDTO;
+import com.wanwan.model.entity.Comment;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

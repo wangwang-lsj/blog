@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanwan.common.Constants;
 import com.wanwan.mapper.DictMapper;
 import com.wanwan.mapper.MenuMapper;
-import com.wanwan.entity.Dict;
-import com.wanwan.entity.Menu;
+import com.wanwan.model.entity.Dict;
+import com.wanwan.model.entity.Menu;
 import com.wanwan.service.IMenuService;
 import org.springframework.stereotype.Service;
 

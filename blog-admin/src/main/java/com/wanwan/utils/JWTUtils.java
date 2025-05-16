@@ -6,7 +6,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.wanwan.entity.User;
+import com.wanwan.model.entity.User;
 import com.wanwan.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -100,5 +100,10 @@ public class JWTUtils {
             return null;
         }
         return null;
+    }
+    public static String getUserIdFromRequest(HttpServletRequest request) {
+        String token = request.getHeader("token");
+        DecodedJWT decodedJWT = getToken(token); // 实现略
+        return decodedJWT.getClaim("userId").asString();
     }
 }

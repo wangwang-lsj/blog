@@ -4,9 +4,9 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanwan.mapper.RoleMapper;
 import com.wanwan.mapper.RoleMenuMapper;
-import com.wanwan.entity.Menu;
-import com.wanwan.entity.Role;
-import com.wanwan.entity.RoleMenu;
+import com.wanwan.model.entity.Menu;
+import com.wanwan.model.entity.Role;
+import com.wanwan.model.entity.RoleMenu;
 import com.wanwan.service.IMenuService;
 import com.wanwan.service.IRoleService;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     private IMenuService menuService;
     @Transactional
     @Override
-    public void updateRoleMenu(Integer roleId, List<Integer> menuIds) {
+    public boolean updateRoleMenu(Integer roleId, List<Integer> menuIds) {
         //先删除当前角色id所有的绑定关系
         // QueryWrapper<RoleMenu> queryWrapper = new QueryWrapper<>();
         // queryWrapper.eq("role_id",roleId);
@@ -55,6 +55,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             roleMenu.setMenuId(menuId);
             roleMenuMapper.insert(roleMenu);
         }
+        return true;
     }
 
     @Override

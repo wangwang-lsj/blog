@@ -1,8 +1,9 @@
 package com.wanwan.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wanwan.annotation.AuthAccess;
-import com.wanwan.common.Result;
-import com.wanwan.entity.Article;
+import com.wanwan.response.Result;
+import com.wanwan.model.entity.Article;
 import com.wanwan.service.IArticleService;
 import com.wanwan.service.ICommentService;
 import org.springframework.web.bind.annotation.*;
@@ -29,27 +30,27 @@ public class ArticleController {
     private ICommentService commentService;
     @AuthAccess
     @GetMapping("/page")
-    public Result queryPage(@RequestParam Integer pageNum,
-                       @RequestParam Integer pageSize,
-                       @RequestParam(defaultValue = "") String title,
-                       @RequestParam(defaultValue = "") String description,
-                       @RequestParam(defaultValue = "") String username,
-                       @RequestParam(defaultValue = "") String categoryName,
-                       @RequestParam(defaultValue = "") String orderTarget,
-                       @RequestParam(defaultValue = "") String order
+    public Result<IPage<Article>> queryPage(@RequestParam Integer pageNum,
+                                            @RequestParam Integer pageSize,
+                                            @RequestParam(defaultValue = "") String title,
+                                            @RequestParam(defaultValue = "") String description,
+                                            @RequestParam(defaultValue = "") String username,
+                                            @RequestParam(defaultValue = "") String categoryName,
+                                            @RequestParam(defaultValue = "") String orderTarget,
+                                            @RequestParam(defaultValue = "") String order
     ) {
         return Result.success(articleService.pageByCondition(pageNum,pageSize,title,description,username,categoryName,orderTarget,order));
     }
 
     @AuthAccess
     @GetMapping("/hots")
-    public Result queryHots(@RequestParam Integer pageNum,
+    public Result<IPage<Article>> queryHots(@RequestParam Integer pageNum,
                           @RequestParam Integer pageSize) {
         return Result.success(articleService.pageHotArticle(pageNum,pageSize));
     }
     @AuthAccess
     @GetMapping("/relations")
-    public Result queryRelations(@RequestParam Integer pageNum,
+    public Result<IPage<Article>> queryRelations(@RequestParam Integer pageNum,
                                @RequestParam Integer pageSize,
                                @RequestParam Integer categoryId,
                                @RequestParam Integer articleId
@@ -59,20 +60,20 @@ public class ArticleController {
 
     @AuthAccess
     @GetMapping("/{id}/all")
-    public Result queryById(@PathVariable Integer id) {
+    public Result<Article> queryById(@PathVariable Integer id) {
         return Result.success(articleService.getArticleAll(id));
     }
 
 
     @AuthAccess
     @GetMapping("/{articleId}/{userId}")
-    public Result queryLike(@PathVariable Integer articleId,@PathVariable Integer userId){
+    public Result<Boolean> queryLike(@PathVariable Integer articleId,@PathVariable Integer userId){
         return Result.success(articleService.getLikeRelation(articleId,userId));
     }
 
     @AuthAccess
     @GetMapping("/statistics")
-    public Result queryStatistics(){
+    public Result<Map<String,Object>> queryStatistics(){
         Map<String,Object> map = new HashMap<>();
         map.put("articleCount",articleService.count());
         map.put("todayRead",5);//暂时先这样
@@ -82,42 +83,42 @@ public class ArticleController {
 
     // 更新
     @PutMapping
-    public Result modify(@RequestBody Article article) {
+    public Result<Integer> modify(@RequestBody Article article) {
         return Result.success(articleService.updateArticle(article));
     }
 
     @PostMapping()
-    public Result create(@RequestBody Article article) {
+    public Result<Boolean> create(@RequestBody Article article) {
         return Result.success(articleService.saveArticle(article));
     }
     @PutMapping("/likes")
-    public Result updateLike(@RequestParam Integer articleId,
+    public Result<String> updateLike(@RequestParam Integer articleId,
                                 @RequestParam Long userId,
                                 @RequestParam Boolean isLike
     ){
         articleService.likeOrDislike(articleId,userId,isLike);
-        return Result.success();
+        return Result.success("");
     }
 
     @DeleteMapping("/{id}")
-    public Result deleteById(@PathVariable Integer id) {
+    public Result<String> deleteById(@PathVariable Integer id) {
         articleService.removeArticle(id);
-        return Result.success();
+        return Result.success("");
     }
 
     @DeleteMapping()
-    public Result deleteBatch(@RequestBody List<Integer> ids) {
+    public Result<String> deleteBatch(@RequestBody List<Integer> ids) {
         articleService.removeArticles(ids);
-        return Result.success();
+        return Result.success("");
     }
     @AuthAccess
     @PatchMapping("/{id}")
-    public Result updateReadCount(@PathVariable Integer id){
+    public Result<String> updateReadCount(@PathVariable Integer id){
         articleService.updateReadCount(id);
-        return Result.success();
+        return Result.success("");
     }
     @PatchMapping("/{id}/{homeShow}")
-    public Result updateHomeShow(@PathVariable Integer id,@PathVariable Boolean homeShow){
+    public Result<Boolean> updateHomeShow(@PathVariable Integer id,@PathVariable Boolean homeShow){
         return Result.success(articleService.updateHomeShow(id,homeShow));
     }
 

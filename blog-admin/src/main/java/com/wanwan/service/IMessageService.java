@@ -1,7 +1,7 @@
 package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.entity.Message;
+import com.wanwan.model.entity.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

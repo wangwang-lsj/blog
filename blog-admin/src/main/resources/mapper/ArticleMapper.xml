@@ -7,7 +7,7 @@
     <select id="selectCommentCount" resultType="int">
         <include refid="com.wanwan.mapper.CommentMapper.selectCommentCountSql"/>
     </select>
-    <resultMap id="ArticleMap" type="com.wanwan.entity.Article">
+    <resultMap id="ArticleMap" type="com.wanwan.model.entity.Article">
         <result property="id" column="id"/>
         <association property="commentCount" javaType="java.lang.Integer"
                      select="selectCommentCount" column="id"/>
@@ -39,7 +39,7 @@
         </if>
 
     </select>
-    <select id="selectArticleById" resultType="com.wanwan.entity.Article">
+    <select id="selectArticleById" resultType="com.wanwan.model.entity.Article">
         SELECT
         a.*,c.name as categoryName,u.username as userName
         FROM article a

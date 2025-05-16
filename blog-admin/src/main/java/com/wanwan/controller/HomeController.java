@@ -2,8 +2,9 @@ package com.wanwan.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanwan.annotation.AuthAccess;
-import com.wanwan.common.Result;
-import com.wanwan.entity.Slideshow;
+import com.wanwan.model.entity.Article;
+import com.wanwan.response.Result;
+import com.wanwan.model.entity.Slideshow;
 import com.wanwan.service.IArticleService;
 import com.wanwan.service.ISlideshowService;
 import org.springframework.web.bind.annotation.*;
@@ -36,27 +37,27 @@ public class HomeController {
     }
     @AuthAccess
     @GetMapping("/articles")
-    public Result getHomeArticles(){
+    public Result<List<Article>> getHomeArticles(){
         return Result.success(articleService.listHomeArticle());
     }
     @PostMapping("/slider")
-    public Result create(@RequestBody Slideshow slideshow){
+    public Result<Boolean> create(@RequestBody Slideshow slideshow){
         return Result.success(slideshowService.saveSlider(slideshow));
     }
     @PutMapping("/slider")
-    public Result modify(@RequestBody Slideshow slideshow){
+    public Result<Integer> modify(@RequestBody Slideshow slideshow){
         return Result.success(slideshowService.updateSlider(slideshow));
     }
     @DeleteMapping("/slider/{id}")
-    public Result deleteById(@PathVariable Integer id){
+    public Result<Boolean> deleteById(@PathVariable Integer id){
         return Result.success(slideshowService.removeSlider(id));
     }
     @DeleteMapping("/slider")
-    public Result deleteBatch(@RequestBody List<Integer> ids){
+    public Result<Boolean> deleteBatch(@RequestBody List<Integer> ids){
         return Result.success(slideshowService.removeSliders(ids));
     }
     @PatchMapping("/slider")
-    public Result updateShow(@RequestBody Slideshow slideshow){
+    public Result<Boolean> updateShow(@RequestBody Slideshow slideshow){
         return Result.success(slideshowService.updateSliderEnable(slideshow));
     }
 }

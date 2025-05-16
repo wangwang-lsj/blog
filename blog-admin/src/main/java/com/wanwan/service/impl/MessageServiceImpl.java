@@ -10,7 +10,7 @@ import com.wanwan.annotation.RedisCache;
 import com.wanwan.annotation.RedisUpdate;
 import com.wanwan.common.Constants;
 import com.wanwan.mapper.MessageMapper;
-import com.wanwan.entity.Message;
+import com.wanwan.model.entity.Message;
 import com.wanwan.service.IMessageService;
 import com.wanwan.utils.IpUtil;
 import org.springframework.stereotype.Service;

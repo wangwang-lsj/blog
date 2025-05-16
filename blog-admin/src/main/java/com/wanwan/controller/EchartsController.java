@@ -8,8 +8,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.wanwan.annotation.AuthAccess;
 import com.wanwan.common.Constants;
-import com.wanwan.common.Result;
-import com.wanwan.entity.User;
+import com.wanwan.response.Result;
+import com.wanwan.model.entity.User;
 import com.wanwan.service.IArticleService;
 import com.wanwan.service.ICommentService;
 import com.wanwan.service.IMessageService;
@@ -20,10 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author：玩玩
@@ -45,7 +42,7 @@ public class EchartsController {
     private StringRedisTemplate stringRedisTemplate;
     @AuthAccess
     @GetMapping("/statistics")
-    public Result queryStatistics() {
+    public Result<Map<String,Object>> queryStatistics() {
         Map<String, Object> map = new HashMap<>();
         map.put("userCount",userService.count());
         map.put("articleCount",articleService.count());
@@ -56,7 +53,7 @@ public class EchartsController {
     }
     @AuthAccess
     @GetMapping("/example")
-    public Result example() {
+    public Result<Map<String,Object>> example() {
         Map<String, Object> map = new HashMap<>();
         map.put("x", CollUtil.newArrayList("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"));
         map.put("y", CollUtil.newArrayList(150, 230, 224, 218, 135, 147, 260));
@@ -65,7 +62,7 @@ public class EchartsController {
 
     @AuthAccess
     @GetMapping("/members")
-    public Result members() {
+    public Result<ArrayList<Integer>> members() {
         String jsonStr = stringRedisTemplate.opsForValue().get(Constants.ECHARTS_DATA_KEY);
         List<User> list;
         if (StrUtil.isBlank(jsonStr)) {

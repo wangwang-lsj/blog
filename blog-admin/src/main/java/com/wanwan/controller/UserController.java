@@ -5,15 +5,18 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.wanwan.annotation.AuthAccess;
-import com.wanwan.common.Result;
-import com.wanwan.common.enums.ResultCodeEnum;
-import com.wanwan.dto.*;
-import com.wanwan.entity.User;
+import com.wanwan.model.dto.UserLoginDTO;
+import com.wanwan.model.dto.UserPageDTO;
+import com.wanwan.model.dto.UserPasswordDTO;
+import com.wanwan.model.dto.UserRegisterDTO;
+import com.wanwan.response.Result;
+import com.wanwan.model.dto.*;
+import com.wanwan.model.entity.User;
 import com.wanwan.service.IUserService;
 import com.wanwan.utils.JWTUtils;
-import com.wanwan.utils.RedisUtil;
+import com.wanwan.model.vo.UserLoginVO;
+import com.wanwan.model.vo.UserRegisterVO;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +29,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -48,9 +52,8 @@ public class UserController {
      */
     @AuthAccess
     @PostMapping("/register")
-    public Result register(@Valid @RequestBody UserRegisterDTO userRegisterDTO) {
-        User dto = userService.register(userRegisterDTO);
-        return Result.success(dto);
+    public Result<UserRegisterVO> register(@Valid @RequestBody UserRegisterDTO userRegisterDTO) {
+        return Result.success(userService.register(userRegisterDTO));
     }
 
     /**
@@ -60,30 +63,21 @@ public class UserController {
      */
     @AuthAccess
     @PostMapping("/login")
-    public Result login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-        UserLoginResponseDTO dto = userService.login(userLoginDTO);
+    public Result<UserLoginVO> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+        UserLoginVO dto = userService.login(userLoginDTO);
         return Result.success(dto);
     }
     @PostMapping("/bindemail")
-    public Result bindEmail(HttpServletRequest request, @RequestParam String email, @RequestParam String code) {
-        String token = request.getHeader("token");
-        DecodedJWT decodedJWT = JWTUtils.getToken(token);
-        String userId = decodedJWT.getClaim("userId").asString();
-
-        String emailCodeKey = "email_code:"+email;
-        String emailCode = RedisUtil.get(emailCodeKey, String.class);
-        if(code.equals(emailCode)) {
-            return Result.success(userService.bindEmail(userId,email));
-        }else {
-            return Result.error(ResultCodeEnum.USER_EMAIL_CODE_ERROR);
-        }
+    public Result<Boolean> bindEmail(HttpServletRequest request, @RequestParam String email, @RequestParam String code) {
+        String userId = JWTUtils.getUserIdFromRequest(request);
+        return Result.success(userService.bindEmail(userId,email,code));
     }
 
     /**
      * 按条件分页查询
      */
     @GetMapping("/page")
-    public Result queryPage(@ModelAttribute @Valid UserPageDTO userPageDTO){
+    public Result<Map<String,Object>> queryPage(@ModelAttribute @Valid UserPageDTO userPageDTO){
         return Result.success(userService.pageUserByCondition(userPageDTO));
     }
 
@@ -93,7 +87,7 @@ public class UserController {
      * @return Boolean
      */
     @PostMapping("")
-    public Result create(@RequestBody User user) {
+    public Result<Boolean> create(@RequestBody User user) {
         return Result.success(userService.saveUser(user));
     }
     /**
@@ -102,7 +96,7 @@ public class UserController {
      * @return Boolean
      */
     @PutMapping("")
-    public Result modify(@RequestBody User user) {
+    public Result<Integer> modify(@RequestBody User user) {
         return Result.success(userService.updateUser(user));
     }
     /**
@@ -111,7 +105,7 @@ public class UserController {
      * @return Boolean
      */
     @DeleteMapping("/{id}")
-    public Result deleteById(@PathVariable Integer id) {
+    public Result<Boolean> deleteById(@PathVariable Integer id) {
         return Result.success(userService.removeById(id));
     }
 
@@ -121,7 +115,7 @@ public class UserController {
      * @return Boolean
      */
     @DeleteMapping("")
-    public Result deleteBatch(@RequestBody List<Integer> ids) {
+    public Result<Boolean> deleteBatch(@RequestBody List<Integer> ids) {
         return Result.success(userService.removeBatchByIds(ids));
     }
 
@@ -131,7 +125,7 @@ public class UserController {
      * @return 异常返回数据
      */
     @PatchMapping("")
-    public Result modifyPassword(@RequestBody UserPasswordDTO userPasswordDTO) {
+    public Result<Integer> modifyPassword(@RequestBody UserPasswordDTO userPasswordDTO) {
         userService.updatePassword(userPasswordDTO);
         return Result.success();
     }
@@ -142,7 +136,7 @@ public class UserController {
      * @return user
      */
     @GetMapping("/{username}")
-    public Result queryByName(@PathVariable String username) {
+    public Result<User> queryByName(@PathVariable String username) {
         return Result.success(userService.queryUser(username));
     }
 
@@ -198,7 +192,7 @@ public class UserController {
      * @throws Exception
      */
     @PostMapping("/import")
-    public Result importExcel(MultipartFile file) throws Exception {
+    public Result<Boolean> importExcel(MultipartFile file) throws Exception {
         InputStream inputStream = file.getInputStream();
         ExcelReader reader = ExcelUtil.getReader(inputStream);
         reader.read();

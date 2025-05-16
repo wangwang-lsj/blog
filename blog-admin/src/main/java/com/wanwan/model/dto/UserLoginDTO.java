@@ -1,12 +1,10 @@
-package com.wanwan.dto;
+package com.wanwan.model.dto;
 
-import com.wanwan.entity.Menu;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.List;
 
 /**
  * @author 玩玩

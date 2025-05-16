@@ -1,8 +1,8 @@
 package com.wanwan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wanwan.dto.UserPasswordDTO;
-import com.wanwan.entity.User;
+import com.wanwan.model.dto.UserPasswordDTO;
+import com.wanwan.model.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

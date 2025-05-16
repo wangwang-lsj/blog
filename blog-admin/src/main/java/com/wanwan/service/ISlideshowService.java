@@ -1,7 +1,7 @@
 package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.entity.Slideshow;
+import com.wanwan.model.entity.Slideshow;
 
 import java.util.List;
 

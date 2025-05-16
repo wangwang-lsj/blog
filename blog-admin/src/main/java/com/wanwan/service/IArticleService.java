@@ -2,7 +2,7 @@ package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.entity.Article;
+import com.wanwan.model.entity.Article;
 
 import java.util.List;
 

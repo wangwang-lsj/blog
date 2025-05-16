@@ -2,7 +2,7 @@ package com.wanwan.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wanwan.mapper.CategoryMapper;
-import com.wanwan.entity.Category;
+import com.wanwan.model.entity.Category;
 import com.wanwan.service.ICategoryService;
 import org.springframework.stereotype.Service;
 

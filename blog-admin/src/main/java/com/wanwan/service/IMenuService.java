@@ -1,8 +1,8 @@
 package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.entity.Dict;
-import com.wanwan.entity.Menu;
+import com.wanwan.model.entity.Dict;
+import com.wanwan.model.entity.Menu;
 
 import java.util.List;
 

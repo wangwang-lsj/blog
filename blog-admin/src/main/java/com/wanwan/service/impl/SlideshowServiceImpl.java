@@ -7,7 +7,7 @@ import com.wanwan.annotation.RedisCache;
 import com.wanwan.annotation.RedisUpdate;
 import com.wanwan.common.Constants;
 import com.wanwan.mapper.SlideshowMapper;
-import com.wanwan.entity.Slideshow;
+import com.wanwan.model.entity.Slideshow;
 import com.wanwan.service.ISlideshowService;
 import org.springframework.stereotype.Service;
 

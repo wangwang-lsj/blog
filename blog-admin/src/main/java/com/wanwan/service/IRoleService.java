@@ -1,7 +1,7 @@
 package com.wanwan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wanwan.entity.Role;
+import com.wanwan.model.entity.Role;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface IRoleService extends IService<Role> {
 
-    void updateRoleMenu(Integer roleId, List<Integer> menuIds);
+    boolean updateRoleMenu(Integer roleId, List<Integer> menuIds);
 
     List<Integer> listRoleMenu(Integer roleId);
     boolean saveRole(Role role);

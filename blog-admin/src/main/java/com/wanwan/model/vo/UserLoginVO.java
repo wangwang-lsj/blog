@@ -1,11 +1,9 @@
-package com.wanwan.dto;
+package com.wanwan.model.vo;
 
-import com.wanwan.entity.Menu;
+import com.wanwan.model.entity.Menu;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -15,8 +13,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class UserLoginResponseDTO {
-    private Long id;
+public class UserLoginVO {
     private String username;
     private String password;
     private String nickname;

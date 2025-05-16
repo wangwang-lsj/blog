@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wanwan.mapper.UserCommentLikeMapper">
 
-    <resultMap id="BaseResultMap" type="com.wanwan.entity.UserCommentLike">
+    <resultMap id="BaseResultMap" type="com.wanwan.model.entity.UserCommentLike">
             <id property="user_id" column="user_id" jdbcType="BIGINT"/>
             <id property="comment_id" column="comment_id" jdbcType="INTEGER"/>
             <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>

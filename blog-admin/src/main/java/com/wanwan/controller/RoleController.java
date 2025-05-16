@@ -3,10 +3,12 @@ package com.wanwan.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wanwan.common.Result;
-import com.wanwan.entity.Role;
+import com.wanwan.response.Result;
+import com.wanwan.model.entity.Role;
 import com.wanwan.service.IRoleService;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -34,9 +36,9 @@ public class RoleController {
      * @return Page
      */
     @GetMapping("/page")
-    public Result queryPage(@RequestParam Integer pageNum,
-                          @RequestParam Integer pageSize,
-                          @RequestParam(defaultValue = "") String name
+    public Result<IPage<Role>> queryPage(@RequestParam Integer pageNum,
+                                      @RequestParam Integer pageSize,
+                                      @RequestParam(defaultValue = "") String name
 
     ) {
         QueryWrapper<Role> queryWrapper = new QueryWrapper<>();
@@ -51,7 +53,7 @@ public class RoleController {
      * @return List<Role>
      */
     @GetMapping("")
-    public Result queryRoles() {
+    public Result<List<Role>> queryRoles() {
         return Result.success(roleService.list());
     }
 
@@ -61,7 +63,7 @@ public class RoleController {
      * @return Boolean
      */
     @PostMapping("")
-    public Result create(@RequestBody Role role) {
+    public Result<Boolean> create(@RequestBody Role role) {
         return Result.success(roleService.saveRole(role));
     }
     /**
@@ -70,7 +72,7 @@ public class RoleController {
      * @return Boolean
      */
     @PutMapping("")
-    public Result modify(@RequestBody Role role) {
+    public Result<Integer> modify(@RequestBody Role role) {
         return Result.success(roleService.updateRole(role));
     }
     /**
@@ -79,7 +81,7 @@ public class RoleController {
      * @return Boolean
      */
     @DeleteMapping("/{id}")
-    public Result deleteById(@PathVariable Integer id) {
+    public Result<Boolean> deleteById(@PathVariable Integer id) {
         return Result.success(roleService.removeById(id));
     }
 
@@ -89,7 +91,7 @@ public class RoleController {
      * @return Boolean
      */
     @DeleteMapping("")
-    public Result deleteBatch(@RequestBody List<Integer> ids) {
+    public Result<Boolean> deleteBatch(@RequestBody List<Integer> ids) {
         return Result.success(roleService.removeByIds(ids));
     }
 
@@ -101,7 +103,7 @@ public class RoleController {
      * @return List<Integer>
      */
     @GetMapping("/{roleId}/menus")
-    public Result queryMenuById(@PathVariable Integer roleId) {
+    public Result<List<Integer>> queryMenuById(@PathVariable Integer roleId) {
         return Result.success(roleService.listRoleMenu(roleId));
     }
 
@@ -112,9 +114,8 @@ public class RoleController {
      * @return Boolean
      */
     @PostMapping("/{roleId}/menus")
-    public Result createRoleMenus(@PathVariable Integer roleId, @RequestBody List<Integer> menuIds) {
-        roleService.updateRoleMenu(roleId, menuIds);
-        return Result.success();
+    public Result<Boolean> createRoleMenus(@PathVariable Integer roleId, @RequestBody List<Integer> menuIds) {
+        return Result.success(roleService.updateRoleMenu(roleId, menuIds));
     }
 
 }
