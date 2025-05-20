@@ -64,13 +64,11 @@ public class UserController {
     @AuthAccess
     @PostMapping("/login")
     public Result<UserLoginVO> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-        UserLoginVO dto = userService.login(userLoginDTO);
-        return Result.success(dto);
+        return Result.success(userService.login(userLoginDTO));
     }
     @PostMapping("/bindemail")
     public Result<Boolean> bindEmail(HttpServletRequest request, @RequestParam String email, @RequestParam String code) {
-        String userId = JWTUtils.getUserIdFromRequest(request);
-        return Result.success(userService.bindEmail(userId,email,code));
+        return Result.success(userService.bindEmail(JWTUtils.getUserIdFromRequest(request),email,code));
     }
 
     /**

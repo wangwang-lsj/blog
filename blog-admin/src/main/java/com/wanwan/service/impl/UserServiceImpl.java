@@ -174,24 +174,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public User queryUser(String username) {
+        log.info("查询用户信息，用户名：{}", username);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
-        User one = userMapper.selectOne(queryWrapper);
-        return one;
+        return userMapper.selectOne(queryWrapper);
     }
 
     @Override
     public boolean saveUser(User user) {
+        log.info("保存用户信息，用户名：{}", user.getUsername());
         return save(user);
     }
 
     @Override
     public int updateUser(User user) {
+        log.info("更新用户信息，用户名：{}", user.getUsername());
         return userMapper.updateById(user);
     }
 
     @Override
     public boolean bindEmail(String userId, String email, String code) {
+        log.info("用户绑定邮箱，用户ID：{}，邮箱：{}，验证码：{}", userId, email, code);
         String emailCodeKey = "email_code:" + email;
         String emailCode = RedisUtil.get(emailCodeKey, String.class);
 
@@ -207,6 +210,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public int updatePassword(UserPasswordDTO userPasswordDTO) {
+        log.info("用户修改密码，用户名：{}", userPasswordDTO.getUsername());
         int update = userMapper.updatePWByUN(userPasswordDTO);
         if (update < 1) {
             throw new ServiceException(ResultCodeEnum.PARAM_PASSWORD_ERROR);
