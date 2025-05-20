@@ -8,7 +8,7 @@ import AdminHomeView from '@/views/AdminViews/AdminHomeView.vue';
 import DashBoardView from '@/views/AdminViews/DashBoardView.vue';
 import GaodeMapView from '@/views/AdminViews/GaodeMapView.vue';
 import PersonalInfoView from '@/views/AdminViews/PersonalInfoView.vue';
-import UpdataPWView from '@/views/AdminViews/UpdataPWView.vue';
+import UpdatePWView from '@/views/AdminViews/UpdatePWView.vue';
 import HomeManageView from '@/views/AdminViews/WebManageViews/HomeManageView.vue';
 import ArticleManageView from '@/views/AdminViews/WebManageViews/ArticleManageView.vue';
 import MessageManageView from '@/views/AdminViews/WebManageViews/MessageManageView.vue';
@@ -62,9 +62,9 @@ const router = createRouter({
           component: PersonalInfoView,
         },
         {
-          path: 'updatapw',
-          name: 'updatapw',
-          component: UpdataPWView,
+          path: 'updatepw',
+          name: 'updatepw',
+          component: UpdatePWView,
         },
         {
           path: 'webmanage',
