@@ -23,7 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import redis.clients.jedis.Jedis;
+
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -109,30 +109,30 @@ public class AdminTest {
             testMapper.insert(test);
         }
     }
-    @Test
-    void test3() {
-        System.out.println(passwordEncoder.encode("123456"));
-    }
-    @Test
-    void test4() {
-        Jedis jedis = new Jedis("localhost", 6379);
-        try {
-            // 提供密码进行身份验证
-            jedis.auth("luoshujiang");
-            // 测试连接
-            System.out.println("Connection to server successfully");
-            System.out.println("Server is running: " + jedis.ping());
-
-            // 执行其他 Redis 操作
-            jedis.set("test", "test");
-            System.out.println("Value of key: " + jedis.get("test"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            // 关闭连接
-            jedis.close();
-        }
-    }
+//    @Test
+//    void test3() {
+//        System.out.println(passwordEncoder.encode("123456"));
+//    }
+//    @Test
+//    void test4() {
+//        Jedis jedis = new Jedis("localhost", 6379);
+//        try {
+//            // 提供密码进行身份验证
+//            jedis.auth("luoshujiang");
+//            // 测试连接
+//            System.out.println("Connection to server successfully");
+//            System.out.println("Server is running: " + jedis.ping());
+//
+//            // 执行其他 Redis 操作
+//            jedis.set("test", "test");
+//            System.out.println("Value of key: " + jedis.get("test"));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            // 关闭连接
+//            jedis.close();
+//        }
+//    }
 
     @Test
     void testInsert(){
