@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/axios": "^0.9.36",
     "@typescript-eslint/parser": "^8.31.0",
     "axios": "^1.8.4",
     "element-plus": "^2.9.10",

@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import NotFoundView from '@/views/NotFoundView.vue';
 import LoginView from '@/views/LoginView.vue';
@@ -18,7 +18,7 @@ import MenuManageView from '@/views/AdminViews/SystemManageViews/MenuManageView.
 import FileManageView from '@/views/AdminViews/SystemManageViews/FileManageView.vue';
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(import.meta.env.VITE_API_BASE_URL),
   routes: [
     {
       path: '/404',
