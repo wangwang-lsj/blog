@@ -9,23 +9,28 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminHeader: typeof import('./src/components/AdminHeader.vue')['default']
+    Aside: typeof import('./src/components/Aside.vue')['default']
     AsidePanel: typeof import('./src/components/AsidePanel.vue')['default']
+    Comment: typeof import('./src/components/Comment.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
     ElTabs: typeof import('element-plus/es')['ElTabs']
+    Header: typeof import('./src/components/Header.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
     IconSupport: typeof import('./src/components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
+    Identify: typeof import('./src/components/Identify.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TheComment: typeof import('./src/components/TheComment.vue')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
+    WangEditor: typeof import('./src/components/WangEditor.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
 }
